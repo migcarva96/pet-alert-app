@@ -1,56 +1,127 @@
-# Welcome to your Expo app 👋
+# PetAlert 🐾
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación móvil (iOS y Android) para registrar mascotas, ubicarlas en un mapa y reportar casos de **pérdida** o **maltrato** animal. Es el cliente del proyecto final de _Sistemas Distribuidos_ (EAFIT): consume dos microservicios independientes, uno de mascotas y otro de denuncias.
 
-## Get started
+Construida con [Expo](https://expo.dev) SDK 58, React Native, TypeScript y Expo Router.
 
-1. Install dependencies
+## Funcionalidades
 
-   ```bash
-   npm install
-   ```
+### Mascotas
 
-2. Start the app
+- Listado de mascotas registradas.
+- Registro con nombre, raza, color, collar GPS (opcional), ubicación actual del dispositivo y foto (desde cámara/galería o por URL).
+- Detalle de la mascota con su **historial de denuncias**, cruzado por el código del collar GPS.
+- Mapa con la última ubicación conocida (Apple Maps en iOS, Google Maps en Android).
+- Eliminación de mascotas.
 
-   ```bash
-   npx expo start
-   ```
+### Denuncias
 
-In the output, you'll find options to open the app in a
+- Feed paginado (20 por página, scroll infinito) con filtros por tipo, nombre, collar GPS y rango de fechas.
+- Crear y editar denuncias de tipo _Pérdida_ o _Maltrato_, con datos de la mascota y del denunciante.
+- Foto principal (JPG/PNG/WEBP, máx. 5 MB) y hasta 5 evidencias (imágenes, PDF o MP4, máx. 20 MB c/u).
+- Detalle de la denuncia con sus evidencias adjuntas.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Próximamente
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Servicios**: agenda de spa, peluquería, guardería, paseos y veterinaria.
+- **Mercado**: tienda de alimentos, accesorios y productos de salud.
 
-## Get a fresh project
+Estas pestañas existen como pantallas informativas, sin lógica aún.
 
-When you're ready, run:
+## Arquitectura
 
-```bash
-npm run reset-project
+```
+┌──────────────────────┐   HTTP (JSON / multipart)
+│   PetAlert (Expo)    │
+│                      │
+│  mascotasService  ───┼──▶  API Mascotas  (:3000)
+│  denunciasService ───┼──▶  API Denuncias (:3001)
+└──────────────────────┘
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+- Cada servicio tiene su propio cliente `axios` ([src/services/api/client.ts](src/services/api/client.ts)). Ambos responden los errores como `{ codigo, mensaje }`, que la app normaliza en `ApiError`.
+- Las fotos y evidencias se envían como `multipart/form-data`. La app valida formato y tamaño antes de subir y reconstruye el nombre del archivo para que la extensión coincida con el MIME (requisito de las APIs).
+- Las pantallas siguen un patrón **MVVM**: cada pantalla (`*Screen.tsx`) tiene su hook `use*ViewModel.ts` con el estado y la lógica, y un archivo `*Styles.ts`.
 
-### Other setup steps
+## Estructura del proyecto
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```
+src/
+├── app/                    # Rutas (Expo Router). Solo definen pantallas y navegación
+│   ├── (tabs)/             # Pestañas: Mascotas, Denuncias, Reportar, Servicios, Mercado
+│   ├── mascotas/           # nueva, [id], [id]/mapa
+│   └── denuncias/          # nueva, [id], [id]/editar
+├── features/               # Pantallas por dominio (Screen + ViewModel + Styles)
+│   ├── mascotas/           # lista, registrar, detalle, mapa
+│   ├── denuncias/          # feed, formulario, detalle
+│   ├── servicios/
+│   └── mercado/
+├── components/             # Componentes de UI reutilizables
+├── services/
+│   ├── api/                # Clientes HTTP y servicios de cada microservicio
+│   ├── device/             # Cámara, galería, documentos y ubicación
+│   └── entities/           # Tipos de dominio (Mascota, Denuncia, Archivo)
+├── constants/theme.ts      # Colores y tipografía (Open Sans)
+├── hooks/
+└── utils/                  # Formato de fechas y helpers de mapas
+```
 
-## Learn more
+## Requisitos
 
-To learn more about developing your project with Expo, look at the following resources:
+- Node.js LTS y npm.
+- Los microservicios de **mascotas** y **denuncias** corriendo y accesibles desde el dispositivo.
+- Un **development build**: la app usa módulos nativos (`expo-maps`, entre otros) que no están en Expo Go.
+- Xcode (iOS) o Android Studio (Android) para compilar localmente, o una cuenta de [EAS](https://docs.expo.dev/eas/) para compilar en la nube.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Configuración
 
-## Join the community
+Copia el archivo de ejemplo y ajusta los valores:
 
-Join our community of developers creating universal apps.
+```bash
+cp .env.example .env
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Variable                        | Descripción                                                                                          |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `EXPO_PUBLIC_MASCOTAS_API_URL`  | URL base del servicio de mascotas (por defecto `http://localhost:3000`).                             |
+| `EXPO_PUBLIC_DENUNCIAS_API_URL` | URL base del servicio de denuncias (por defecto `http://localhost:3001`).                            |
+| `GOOGLE_MAPS_ANDROID_API_KEY`   | Llave de Google Maps para Android. Solo se usa al generar el build, no viaja en el bundle de la app. |
+
+> En un dispositivo físico `localhost` apunta al teléfono. Usa la IP LAN de tu computador, p. ej. `http://192.168.1.10:3000`.
+
+## Ejecución
+
+```bash
+npm install
+
+# Compila e instala el development build (la primera vez o al cambiar dependencias nativas)
+npm run ios        # o: npm run android
+
+# En adelante basta con iniciar el servidor de desarrollo
+npm start
+```
+
+## Scripts
+
+| Comando                | Descripción                        |
+| ---------------------- | ---------------------------------- |
+| `npm start`            | Servidor de desarrollo de Expo.    |
+| `npm run ios`          | Compila y abre la app en iOS.      |
+| `npm run android`      | Compila y abre la app en Android.  |
+| `npm run lint`         | ESLint (`expo lint`).              |
+| `npm run typecheck`    | Verificación de tipos con `tsc`.   |
+| `npm run format`       | Formatea el código con Prettier.   |
+| `npm run format:check` | Verifica el formato sin modificar. |
+
+Para instalar dependencias usa siempre `npx expo install <paquete>`, que elige versiones compatibles con el SDK.
+
+## Stack
+
+- **Expo SDK 58** · React Native 0.88 · React 19 · TypeScript
+- **Expo Router** con rutas tipadas y React Compiler
+- `expo-maps`, `expo-location`, `expo-image-picker`, `expo-document-picker`, `expo-image`
+- `axios` para HTTP, `phosphor-react-native` para íconos, Open Sans como tipografía
+
+## Licencia
+
+Ver [LICENSE](LICENSE).

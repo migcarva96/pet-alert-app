@@ -1,55 +1,82 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://unistyl.es/), etc.
+ * Paleta de colores centralizada de la app (Slate Ink & Premium Navy — modo claro).
+ * Cualquier color usado en pantallas debe salir de aquí, nunca como hex inline en un componente.
  */
 
-import '@/global.css';
-
+import {
+  OpenSans_400Regular,
+  OpenSans_500Medium,
+  OpenSans_600SemiBold,
+  OpenSans_700Bold,
+} from '@expo-google-fonts/open-sans';
 import { Platform } from 'react-native';
 
 export const Colors = {
-  light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
-  },
-  dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
-  },
+  // Marca y acento
+  primaryBase: '#182238',
+  primaryPress: '#0F1728',
+  primarySoft: '#2D3E61',
+  accentBase: '#3B7BBA',
+  accentLight: '#5E9ED8',
+  accentSoftTint: '#EBF3FA',
+
+  // Neutros
+  backgroundMain: '#F8FAFC',
+  surfaceBase: '#FFFFFF',
+  surfaceElevated: '#F1F5F9',
+  border: '#E2E8F0',
+  textMuted: '#94A3B8',
+  textSecondary: '#64748B',
+  textPrimary: '#0F172A',
+
+  // Estados
+  success: '#0D9488',
+  successSoft: '#F0FDF4',
+  warning: '#D97706',
+  warningSoft: '#FFFBEB',
+  danger: '#DC2626',
+  dangerSoft: '#FEF2F2',
+  info: '#2563EB',
+  infoSoft: '#EFF6FF',
+
+  // Texto sobre fondos de color (siempre blanco por contraste WCAG)
+  onPrimary: '#FFFFFF',
+  onAccent: '#FFFFFF',
 } as const;
 
-export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+export type ThemeColor = keyof typeof Colors;
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
+/** Archivos de Open Sans que `useFonts` carga en el layout raíz. */
+export const FontAssets = {
+  OpenSans_400Regular,
+  OpenSans_500Medium,
+  OpenSans_600SemiBold,
+  OpenSans_700Bold,
+};
+
+/** Con `useFonts` el nombre de familia es la clave registrada, igual en iOS y Android. */
+export const FontFamily = {
+  regular: 'OpenSans_400Regular',
+  medium: 'OpenSans_500Medium',
+  semiBold: 'OpenSans_600SemiBold',
+  bold: 'OpenSans_700Bold',
+} as const;
+
+export const Typography = {
+  header1: { fontFamily: FontFamily.bold, fontSize: 28, lineHeight: 36, letterSpacing: -0.56 },
+  header2: { fontFamily: FontFamily.semiBold, fontSize: 22, lineHeight: 28, letterSpacing: -0.22 },
+  header3: { fontFamily: FontFamily.semiBold, fontSize: 18, lineHeight: 24, letterSpacing: 0 },
+  bodyLarge: { fontFamily: FontFamily.regular, fontSize: 16, lineHeight: 22, letterSpacing: 0 },
+  bodyBoldLarge: {
+    fontFamily: FontFamily.semiBold,
+    fontSize: 16,
+    lineHeight: 22,
+    letterSpacing: 0,
   },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
+  bodyMedium: { fontFamily: FontFamily.regular, fontSize: 14, lineHeight: 20, letterSpacing: 0 },
+  caption: { fontFamily: FontFamily.medium, fontSize: 12, lineHeight: 16, letterSpacing: 0.12 },
+  button: { fontFamily: FontFamily.semiBold, fontSize: 14, lineHeight: 20, letterSpacing: 0.14 },
+} as const;
 
 export const Spacing = {
   half: 2,
@@ -62,4 +89,3 @@ export const Spacing = {
 } as const;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;

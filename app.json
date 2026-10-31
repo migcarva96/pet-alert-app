@@ -1,23 +1,30 @@
 {
   "expo": {
-    "name": "pet-alert-app",
+    "name": "PetAlert",
     "slug": "pet-alert-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "petalertapp",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      },
+      "bundleIdentifier": "com.anonymous.pet-alert-app"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F8FAFC",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "output": "server",
@@ -28,11 +35,27 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#F8FAFC",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "PetAlert usa tu galería para adjuntar fotos y evidencias de tus mascotas y denuncias.",
+          "cameraPermission": "PetAlert usa la cámara para fotografiar a tu mascota o tomar evidencias de una denuncia.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "PetAlert usa tu ubicación para registrar dónde está tu mascota."
+        }
+      ],
+      "expo-image",
+      "expo-maps"
     ],
     "experiments": {
       "typedRoutes": true,
